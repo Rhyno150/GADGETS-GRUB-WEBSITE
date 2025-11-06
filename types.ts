@@ -3,6 +3,7 @@ export enum Page {
   Home = 'Home',
   About = 'About Us',
   Services = 'Services',
+  Accessories = 'Accessories',
   Booking = 'Book Repair Online',
   TrackRepair = 'Track My Repair',
   Contact = 'Contact Us',
@@ -10,6 +11,8 @@ export enum Page {
   Blog = 'Blog',
   Admin = 'Admin Panel',
 }
+
+export type Status = 'Received' | 'Diagnosing' | 'Repairing' | 'Ready' | 'Completed';
 
 export interface Service {
   icon: React.ComponentType<{ className?: string }>;
@@ -37,7 +40,8 @@ export interface BlogPost {
 }
 
 export interface Booking {
-  id: string;
+  id: string; // Internal ID based on timestamp
+  repairId: string; // Customer-facing sequential ID
   submissionDate: string;
   name: string;
   email: string;
@@ -45,6 +49,14 @@ export interface Booking {
   device: string;
   model: string;
   repairType: string;
+  description: string;
+  status: Status;
+}
+
+export interface Accessory {
+  name: string;
+  price: string;
+  imageUrl: string;
   description: string;
 }
 

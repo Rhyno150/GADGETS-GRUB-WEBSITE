@@ -2,8 +2,16 @@
 import React, { useState } from 'react';
 import { Booking } from '../types';
 
+const getNextRepairId = (): string => {
+    const lastIdNumber = parseInt(localStorage.getItem('lastRepairIdNumber') || '1000');
+    const nextIdNumber = lastIdNumber + 1;
+    localStorage.setItem('lastRepairIdNumber', nextIdNumber.toString());
+    return `GG-${nextIdNumber}`;
+};
+
 const BookingPage: React.FC = () => {
     const [submitted, setSubmitted] = useState(false);
+    const [newRepairId, setNewRepairId] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -22,13 +30,17 @@ const BookingPage: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
+        const repairId = getNextRepairId();
+        setNewRepairId(repairId);
+
         const newBooking: Booking = {
-            id: `GG-${Date.now()}`,
+            id: `ts-${Date.now()}`,
+            repairId: repairId,
             submissionDate: new Date().toISOString(),
+            status: 'Received',
             ...formData,
         };
 
-        // Save to our "database" (localStorage)
         const existingBookings: Booking[] = JSON.parse(localStorage.getItem('bookings') || '[]');
         localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
         
@@ -39,9 +51,14 @@ const BookingPage: React.FC = () => {
     if (submitted) {
         return (
             <div className="bg-white py-16 sm:py-24 animate-fade-in">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-2xl">
                     <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">Thank You!</h1>
-                    <p className="mt-4 text-lg text-gray-600">Your repair request has been submitted. We will contact you shortly to confirm your booking.</p>
+                    <p className="mt-4 text-lg text-gray-600">Your repair request has been submitted. We will contact you shortly to confirm.</p>
+                    <div className="mt-8 bg-orange-50 border-l-4 border-orange-500 p-4 text-left">
+                        <p className="font-semibold text-gray-800">Please save your Repair ID:</p>
+                        <p className="text-2xl font-bold text-orange-600 tracking-wider my-2">{newRepairId}</p>
+                        <p className="text-gray-700">You can use this ID on our "Track My Repair" page to check the status of your service.</p>
+                    </div>
                 </div>
             </div>
         );

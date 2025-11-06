@@ -1,40 +1,35 @@
 
 import React, { useState } from 'react';
-
-type Status = 'Received' | 'Diagnosing' | 'Repairing' | 'Ready' | 'Completed';
-
-const repairStatuses: { [key: string]: Status[] } = {
-    '12345': ['Received', 'Diagnosing', 'Repairing', 'Ready'],
-    '67890': ['Received', 'Diagnosing', 'Completed'],
-    '54321': ['Received', 'Diagnosing', 'Repairing'],
-};
+import { Booking, Status } from '../types';
 
 const statusDescriptions: { [key in Status]: string } = {
-    Received: "We've received your device at our workshop.",
+    Received: "We've received your device at our workshop and it is in the queue.",
     Diagnosing: "Our technicians are running diagnostics to identify the issue.",
     Repairing: "Your device is currently being repaired by one of our experts.",
-    Ready: "Good news! Your device is repaired and ready for pickup.",
-    Completed: "Your device has been repaired and picked up.",
+    Ready: "Good news! Your device is repaired and ready for collection or delivery.",
+    Completed: "Your device has been repaired and delivered/collected. Thank you!",
 };
 
+const allSteps: Status[] = ['Received', 'Diagnosing', 'Repairing', 'Ready', 'Completed'];
+
 const TrackRepairPage: React.FC = () => {
-    const [repairId, setRepairId] = useState('');
-    const [statusHistory, setStatusHistory] = useState<Status[] | null>(null);
+    const [repairIdInput, setRepairIdInput] = useState('');
+    const [trackedBooking, setTrackedBooking] = useState<Booking | null>(null);
     const [error, setError] = useState('');
 
     const handleTrack = (e: React.FormEvent) => {
         e.preventDefault();
-        const foundStatus = repairStatuses[repairId.trim()];
-        if (foundStatus) {
-            setStatusHistory(foundStatus);
-            setError('');
+        setError('');
+        setTrackedBooking(null);
+        const bookings: Booking[] = JSON.parse(localStorage.getItem('bookings') || '[]');
+        const foundBooking = bookings.find(b => b.repairId.toUpperCase() === repairIdInput.trim().toUpperCase());
+        
+        if (foundBooking) {
+            setTrackedBooking(foundBooking);
         } else {
-            setStatusHistory(null);
-            setError('Repair ID not found. Please check the number and try again.');
+            setError('Repair ID not found. Please check the ID and try again.');
         }
     };
-    
-    const allSteps: Status[] = ['Received', 'Diagnosing', 'Repairing', 'Ready', 'Completed'];
 
     return (
         <div className="bg-white py-16 sm:py-24 animate-fade-in">
@@ -47,9 +42,9 @@ const TrackRepairPage: React.FC = () => {
                     <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-4">
                         <input
                             type="text"
-                            value={repairId}
-                            onChange={(e) => setRepairId(e.target.value)}
-                            placeholder="Enter your Repair ID (e.g., 12345)"
+                            value={repairIdInput}
+                            onChange={(e) => setRepairIdInput(e.target.value)}
+                            placeholder="Enter your Repair ID (e.g., GG-1001)"
                             className="flex-grow bg-gray-100 border border-gray-300 rounded-md shadow-sm py-3 px-4 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                         />
                         <button
@@ -62,15 +57,18 @@ const TrackRepairPage: React.FC = () => {
 
                     {error && <p className="mt-4 text-center text-red-500">{error}</p>}
 
-                    {statusHistory && (
+                    {trackedBooking && (
                         <div className="mt-12 bg-gray-50 p-8 rounded-lg shadow-lg border border-gray-200">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Repair Status for ID: {repairId}</h2>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Repair Status for ID: {trackedBooking.repairId}</h2>
                             <ol className="relative border-l border-gray-300">
-                                {allSteps.map((step, index) => {
-                                    const isActive = statusHistory.includes(step);
-                                    const isCurrent = statusHistory[statusHistory.length - 1] === step;
+                                {allSteps.map((step) => {
+                                    const currentIndex = allSteps.indexOf(trackedBooking.status);
+                                    const stepIndex = allSteps.indexOf(step);
+                                    const isActive = stepIndex <= currentIndex;
+                                    const isCurrent = stepIndex === currentIndex;
+
                                     return (
-                                        <li key={index} className="mb-10 ml-6">
+                                        <li key={step} className="mb-10 ml-6">
                                             <span className={`absolute flex items-center justify-center w-6 h-6 rounded-full -left-3 ring-8 ring-gray-50 ${isActive ? 'bg-orange-500' : 'bg-gray-400'}`}>
                                                 {isCurrent && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>}
                                             </span>

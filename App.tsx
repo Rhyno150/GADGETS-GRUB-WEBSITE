@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './components/HomePage';
 import ServicesPage from './components/ServicesPage';
+import AccessoriesPage from './components/AccessoriesPage';
 import BookingPage from './components/BookingPage';
 import TrackRepairPage from './components/TrackRepairPage';
 import ContactPage from './components/ContactPage';
@@ -22,6 +23,8 @@ const App: React.FC = () => {
         return <HomePage setActivePage={setActivePage} />;
       case Page.Services:
         return <ServicesPage />;
+      case Page.Accessories:
+        return <AccessoriesPage />;
       case Page.Booking:
         return <BookingPage />;
       case Page.TrackRepair:

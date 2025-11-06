@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ setActivePage }) => {
-  const quickLinks = [Page.Home, Page.Services, Page.Booking, Page.TrackRepair];
+  const quickLinks = [Page.Home, Page.Services, Page.Accessories, Page.Booking, Page.TrackRepair];
   const companyLinks = [Page.FAQ, Page.Blog, Page.Contact];
 
   const FooterLink: React.FC<{ page: Page }> = ({ page }) => (
