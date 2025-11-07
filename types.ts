@@ -10,6 +10,9 @@ export enum Page {
   FAQ = 'FAQ',
   Blog = 'Blog',
   Admin = 'Admin Panel',
+  Login = 'Login',
+  SignUp = 'Sign Up',
+  Account = 'My Account',
 }
 
 export type Status = 'Received' | 'Diagnosing' | 'Repairing' | 'Ready' | 'Completed';
@@ -39,9 +42,17 @@ export interface BlogPost {
   date: string;
 }
 
+export interface User {
+  id: string; // Unique customer ID, e.g., CUST-101
+  name: string;
+  email: string;
+  passwordHash: string; // Store a hashed/encoded password, not plain text
+}
+
 export interface Booking {
   id: string; // Internal ID based on timestamp
   repairId: string; // Customer-facing sequential ID
+  userId: string | null; // Link to the user who made the booking
   submissionDate: string;
   name: string;
   email: string;

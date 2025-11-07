@@ -1,14 +1,17 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Page } from '../types';
 import { LogoIcon, FacebookIcon, TwitterIcon, InstagramIcon } from './icons';
+import { AuthContext } from '../contexts/AuthContext';
 
 interface FooterProps {
   setActivePage: (page: Page) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ setActivePage }) => {
-  const quickLinks = [Page.Home, Page.Services, Page.Accessories, Page.Booking, Page.TrackRepair];
+  const { currentUser } = useContext(AuthContext);
+  const baseQuickLinks = [Page.Home, Page.Services, Page.Accessories, Page.Booking, Page.TrackRepair];
+  const quickLinks = currentUser ? [...baseQuickLinks, Page.Account] : baseQuickLinks;
   const companyLinks = [Page.FAQ, Page.Blog, Page.Contact];
 
   const FooterLink: React.FC<{ page: Page }> = ({ page }) => (

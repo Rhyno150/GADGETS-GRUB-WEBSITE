@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
-import { Booking } from '../types';
+import React, { useState, useContext, useEffect } from 'react';
+import { Booking, Page } from '../types';
+import { AuthContext } from '../contexts/AuthContext';
 
 const getNextRepairId = (): string => {
     const lastIdNumber = parseInt(localStorage.getItem('lastRepairIdNumber') || '1000');
@@ -9,9 +10,15 @@ const getNextRepairId = (): string => {
     return `GG-${nextIdNumber}`;
 };
 
-const BookingPage: React.FC = () => {
+interface BookingPageProps {
+    setActivePage: (page: Page) => void;
+}
+
+const BookingPage: React.FC<BookingPageProps> = ({ setActivePage }) => {
     const [submitted, setSubmitted] = useState(false);
     const [newRepairId, setNewRepairId] = useState('');
+    const { currentUser } = useContext(AuthContext);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -21,6 +28,16 @@ const BookingPage: React.FC = () => {
         repairType: 'Screen Repair',
         description: ''
     });
+
+    useEffect(() => {
+        if (currentUser) {
+            setFormData(prev => ({
+                ...prev,
+                name: currentUser.name,
+                email: currentUser.email
+            }));
+        }
+    }, [currentUser]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -36,6 +53,7 @@ const BookingPage: React.FC = () => {
         const newBooking: Booking = {
             id: `ts-${Date.now()}`,
             repairId: repairId,
+            userId: currentUser ? currentUser.id : null,
             submissionDate: new Date().toISOString(),
             status: 'Received',
             ...formData,
@@ -44,7 +62,6 @@ const BookingPage: React.FC = () => {
         const existingBookings: Booking[] = JSON.parse(localStorage.getItem('bookings') || '[]');
         localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
         
-        console.log('Booking submitted:', newBooking);
         setSubmitted(true);
     };
 
@@ -58,6 +75,17 @@ const BookingPage: React.FC = () => {
                         <p className="font-semibold text-gray-800">Please save your Repair ID:</p>
                         <p className="text-2xl font-bold text-orange-600 tracking-wider my-2">{newRepairId}</p>
                         <p className="text-gray-700">You can use this ID on our "Track My Repair" page to check the status of your service.</p>
+                    </div>
+                     <div className="mt-8">
+                        {currentUser ? (
+                             <button onClick={() => setActivePage(Page.Account)} className="text-white bg-orange-500 hover:bg-orange-600 font-semibold py-3 px-6 rounded-lg">
+                                View in My Account
+                            </button>
+                        ) : (
+                             <button onClick={() => setActivePage(Page.TrackRepair)} className="text-white bg-orange-500 hover:bg-orange-600 font-semibold py-3 px-6 rounded-lg">
+                                Track My Repair Now
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -76,11 +104,11 @@ const BookingPage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500" />
+                                <input type="text" name="name" id="name" required value={formData.name} onChange={handleChange} disabled={!!currentUser} className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 disabled:bg-gray-200 disabled:text-gray-500" />
                             </div>
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-                                <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500" />
+                                <input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} disabled={!!currentUser} className="mt-1 block w-full bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-orange-500 focus:border-orange-500 disabled:bg-gray-200 disabled:text-gray-500" />
                             </div>
                         </div>
                         <div>

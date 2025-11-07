@@ -98,9 +98,8 @@ const HomePage: React.FC<HomePageProps> = ({ setActivePage }) => {
                             </li>
                         </ul>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <img src="https://picsum.photos/400/300?random=10" alt="Technician repairing a phone" className="rounded-lg shadow-lg" />
-                        <img src="https://picsum.photos/400/300?random=11" alt="Organized repair workspace" className="rounded-lg shadow-lg mt-8" />
+                    <div className="grid grid-cols-1 gap-4">
+                        <img src="https://picsum.photos/seed/techrepair/800/600" alt="Expert technician carefully repairing a smartphone" className="rounded-lg shadow-lg w-full h-auto object-cover" />
                     </div>
                 </div>
             </section>

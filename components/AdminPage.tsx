@@ -1,17 +1,28 @@
 
 import React, { useState, useEffect } from 'react';
-import { Booking, Status } from '../types';
+import { Booking, Status, User } from '../types';
 
 const allStatuses: Status[] = ['Received', 'Diagnosing', 'Repairing', 'Ready', 'Completed'];
 
 const AdminPage: React.FC = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
         const storedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        
         storedBookings.sort((a: Booking, b: Booking) => new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime());
+        
         setBookings(storedBookings);
+        setUsers(storedUsers);
     }, []);
+
+    const getUserName = (userId: string | null) => {
+        if (!userId) return 'Guest';
+        const user = users.find(u => u.id === userId);
+        return user ? user.name : 'Unknown User';
+    };
 
     const handleStatusChange = (bookingId: string, newStatus: Status) => {
         const updatedBookings = bookings.map(b => 
@@ -75,6 +86,7 @@ const AdminPage: React.FC = () => {
                                                 <div className="text-sm font-medium text-gray-900">{booking.name}</div>
                                                 <div className="text-sm text-gray-500">{booking.email}</div>
                                                 <div className="text-sm text-gray-500">{booking.phone}</div>
+                                                <div className="text-xs text-blue-500 font-semibold">{getUserName(booking.userId)}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900">{booking.device}</div>
